@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Joe\\source\\repos\\Blazor_Chat_App\\Blazor_Chat_App.csproj",
+      "projectUniqueName": "C:\\Users\\Joe\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj",
       "projectName": "Blazor_Chat_App",
-      "projectPath": "C:\\Users\\Joe\\source\\repos\\Blazor_Chat_App\\Blazor_Chat_App.csproj",
+      "projectPath": "C:\\Users\\Joe\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj",
       "packagesPath": "C:\\Users\\Joe\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Joe\\source\\repos\\Blazor_Chat_App\\obj\\",
+      "outputPath": "C:\\Users\\Joe\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Joe\\AppData\\Roaming\\NuGet\\NuGet.Config",
