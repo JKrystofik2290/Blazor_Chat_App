@@ -8,6 +8,15 @@ namespace Blazor_Chat_App.Data
 {
     public class ChatHub:Hub
     {
+        List<string> userList = new List<string>();
+
         public async Task SendMsg(string user, string msg) => await Clients.All.SendAsync("ReceiveMessage", user, msg);
+
+        public async Task SendNewUser(string newUser)
+        {
+            userList.Add(newUser);
+
+            await Clients.All.SendAsync("ReceiveUserList", userList);
+        }
     }
 }

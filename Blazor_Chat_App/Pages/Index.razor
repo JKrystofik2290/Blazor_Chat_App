@@ -21,40 +21,79 @@
     </div>
 </div>
 
+<div class="title"><h1>Blazor Chat App</h1></div>
+
+<hr />
+
+<div class="userlist">
+    <h3>Users In Chat:</h3>
+    <ul>
+        @foreach (string user in _usersInChat)
+        {
+            <li>@user</li>
+        }
+    </ul>
+</div>
+
+<hr />
+
+<div class="chatbox">
+    <h3>Messages:</h3>
+    <ul id="messageList">
+        @foreach (string[] chatMsg in _chatMessages)
+        {
+            if (chatMsg[0] == _userName)
+            {
+                <li class="sentMsg">@chatMsg[0] : @chatMsg[1]</li>
+            }
+            else
+            {
+                <li class="recMsg">@chatMsg[0] : @chatMsg[1]</li>
+            }
+        }
+    </ul>
+</div>
+
 <div class="row">
     <div class="col-md-4">
-        <h2>Chat App</h2>
-        <hr />
         <div class="form-group">
             <label>
                 Message: <input type="text" class="form-control" @onkeydown="KeyBoardEventHandler" @bind-value="_msg" @bind-value:event="oninput" />
             </label>
         </div>
-        <button @onclick="Send" @onkeydown="KeyBoardEventHandler" disabled="@(!IsConnected)">Send</button>
+        <button @onclick="SendMsg" @onkeydown="KeyBoardEventHandler" disabled="@(!IsConnected)">Send</button>
     </div>
 </div>
 
-<hr />
-<ul id="messageList">
-    @foreach (var chatMsg in _chatMessages)
-    {
-        <li>@chatMsg</li>
-    }
-</ul>
-
 @code{
+
     private HubConnection _hubConnection;
+
     private string _userName = "";
     private string _msg = "";
-    private List<string> _chatMessages = new List<string>();
+    private List<string[]> _chatMessages = new List<string[]>();
+    private List<string> _usersInChat = new List<string>();
+
 
     protected override async Task OnInitializedAsync()
     {
         _hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chat")).Build();
         _hubConnection.On<string, string>("ReceiveMessage", (user, msg) =>
         {
-            var formatMsg = $"{user} : {msg}";
+            string[] formatMsg = { user, msg };
             _chatMessages.Add(formatMsg);
+            StateHasChanged();
+        });
+
+        _hubConnection.On<List<string>>("ReceiveUserList", (userList) =>
+        {
+            foreach (string user in userList)
+            {
+                if (!_usersInChat.Contains(user))
+                {
+                    _usersInChat.Add(user);
+                }
+            }
             StateHasChanged();
         });
 
@@ -69,23 +108,46 @@
         }
     }
 
-    Task Send() => _hubConnection.SendAsync("SendMsg", _userName, _msg);
 
     public bool IsConnected => _hubConnection.State == HubConnectionState.Connected;
+
+
+    private void SendMsg()
+    {
+        _hubConnection.SendAsync("SendMsg", _userName, _msg);
+        _msg = "";
+    }
+
+    Task SendNewUser() => _hubConnection.SendAsync("SendNewUser", _userName);
 
 
     private void KeyBoardEventHandler(KeyboardEventArgs args)
     {
         if (args.Key == "Enter")
         {
-            Send();
+            SendMsg();
+            _msg = "";
         }
     }
 
     private void NewUserJoined()
     {
+        bool sameName = _usersInChat.Contains(_userName);
+
+        if (sameName)
+        {
+            int count = 1;
+            while (sameName)
+            {
+                _userName = $"{_userName}({count})";
+                sameName = _usersInChat.Contains(_userName);
+                count++;
+            }
+        }
+
+        SendNewUser();
         _msg = "Has Joined The Chat!";
-        Send();
+        SendMsg();
         _msg = "";
     }
 }
