@@ -1,23 +1,36 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 @page "/"
 
+<div class="modal fade" id="getUsername" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Welcome To My Blazor Chat App!</h5>
+            </div>
+            <div class="modal-body">
+                <label>Choose A Username:</label>
+                <input type="text" class="form-control" @bind-value="_userName" @bind-value:event="oninput" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @onclick="NewUserJoined" data-dismiss="modal" disabled="@(!IsConnected)">Join Chat</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <div class="col-md-4">
         <h2>Chat App</h2>
+        <hr />
         <div class="form-group">
             <label>
-                Username: <input type="text" class="form-control" @bind="_userName" />
+                Message: <input type="text" class="form-control" @onkeydown="KeyBoardEventHandler" @bind-value="_msg" @bind-value:event="oninput" />
             </label>
         </div>
-        <div class="form-group">
-            <label>
-                Message: <input type="text" class="form-control" @bind="_msg" />
-            </label>
-        </div>
-        <button @onclick="Send" disabled="@(!IsConnected)">Send</button>
+        <button @onclick="Send" @onkeydown="KeyBoardEventHandler" disabled="@(!IsConnected)">Send</button>
     </div>
 </div>
 
@@ -28,8 +41,6 @@
         <li>@chatMsg</li>
     }
 </ul>
-
-
 
 @code{
     private HubConnection _hubConnection;
@@ -42,7 +53,7 @@
         _hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chat")).Build();
         _hubConnection.On<string, string>("ReceiveMessage", (user, msg) =>
         {
-            var formatMsg = $"{user}:{msg}";
+            var formatMsg = $"{user} : {msg}";
             _chatMessages.Add(formatMsg);
             StateHasChanged();
         });
@@ -50,8 +61,31 @@
         await _hubConnection.StartAsync();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("popup");
+        }
+    }
+
     Task Send() => _hubConnection.SendAsync("SendMsg", _userName, _msg);
 
     public bool IsConnected => _hubConnection.State == HubConnectionState.Connected;
 
+
+    private void KeyBoardEventHandler(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            Send();
+        }
+    }
+
+    private void NewUserJoined()
+    {
+        _msg = "Has Joined The Chat!";
+        Send();
+        _msg = "";
+    }
 }
