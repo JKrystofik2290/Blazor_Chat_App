@@ -18,5 +18,12 @@ namespace Blazor_Chat_App.Data
 
             await Clients.All.SendAsync("ReceiveUserList", userList);
         }
+
+        public async Task RemoveUserL(string user)
+        {
+            /*userList.RemoveAt(userList.IndexOf(user));*/
+
+            await Clients.All.SendAsync("RemoveUserFromList", user);
+        }
     }
 }

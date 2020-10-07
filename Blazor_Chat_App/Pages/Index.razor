@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@implements IDisposable
 
 @page "/"
 
@@ -97,6 +98,15 @@
             StateHasChanged();
         });
 
+        _hubConnection.On<string>("RemoveUserFromList", (user) =>
+        {
+            if (user != "")
+            {
+                _usersInChat.RemoveAt(_usersInChat.IndexOf(user));
+            }
+            StateHasChanged();
+        });
+
         await _hubConnection.StartAsync();
     }
 
@@ -108,7 +118,6 @@
         }
     }
 
-
     public bool IsConnected => _hubConnection.State == HubConnectionState.Connected;
 
 
@@ -119,6 +128,8 @@
     }
 
     Task SendNewUser() => _hubConnection.SendAsync("SendNewUser", _userName);
+
+    Task RemoveUser() => _hubConnection.SendAsync("RemoveUserL", _userName);
 
 
     private void KeyBoardEventHandler(KeyboardEventArgs args)
@@ -150,4 +161,11 @@
         SendMsg();
         _msg = "";
     }
+
+
+    public void Dispose()
+    {
+        RemoveUser();
+    }
+
 }
