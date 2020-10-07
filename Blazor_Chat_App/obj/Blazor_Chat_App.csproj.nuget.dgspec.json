@@ -1,21 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Joe\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj": {}
+    "C:\\Users\\j0029729\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Joe\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj": {
+    "C:\\Users\\j0029729\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Joe\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj",
+        "projectUniqueName": "C:\\Users\\j0029729\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj",
         "projectName": "Blazor_Chat_App",
-        "projectPath": "C:\\Users\\Joe\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj",
-        "packagesPath": "C:\\Users\\Joe\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Joe\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\obj\\",
+        "projectPath": "C:\\Users\\j0029729\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\Blazor_Chat_App.csproj",
+        "packagesPath": "C:\\Users\\j0029729\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\j0029729\\Source\\Repos\\Blazor_Chat_App\\Blazor_Chat_App\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Microsoft\\Xamarin\\NuGet\\"
+        ],
         "configFilePaths": [
-          "C:\\Users\\Joe\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\j0029729\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.1"
@@ -37,6 +41,12 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
+          "dependencies": {
+            "Microsoft.AspNetCore.SignalR.Client": {
+              "target": "Package",
+              "version": "[3.1.8, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

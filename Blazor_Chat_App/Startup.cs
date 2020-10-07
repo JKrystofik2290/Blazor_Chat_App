@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Blazor_Chat_App.Data;
 
 namespace Blazor_Chat_App
 {
@@ -27,6 +28,7 @@ namespace Blazor_Chat_App
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,6 +54,7 @@ namespace Blazor_Chat_App
             {
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapHub<ChatHub>("/chat");
             });
         }
     }
