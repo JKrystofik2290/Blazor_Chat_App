@@ -12,8 +12,16 @@
                 <h5 class="modal-title" id="staticBackdropLabel">Welcome To My Blazor Chat App!</h5>
             </div>
             <div class="modal-body">
-                <label>Choose A Username:</label>
-                <input type="text" class="form-control" @bind-value="_userName" @bind-value:event="oninput" />
+                <label>
+                    Choose A Username:
+                    <input type="text" class="form-control" maxlength="12"
+                           onkeyup="this.value = this.value.replace(/[,]/, '')" onkeydown="this.value = this.value.replace(/[,]/, '')"
+                           @bind-value="_userName" @bind-value:event="oninput" />
+                </label>
+                <ul>
+                    <li>No commas</li>
+                    <li>Max length of 12 characters</li>
+                </ul>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" @onclick="NewUserJoined" data-dismiss="modal" disabled="@(!IsConnected)">Join Chat</button>
