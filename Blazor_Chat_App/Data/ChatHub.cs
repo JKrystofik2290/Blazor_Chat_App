@@ -10,13 +10,12 @@ namespace Blazor_Chat_App.Data
 {
     public class ChatHub : Hub
     {
-        string path = Directory.GetCurrentDirectory() + "\\Data\\userlist.txt";
         List<string> userList = new List<string>();
 
         public ChatHub()
         {
-            string file = File.ReadAllText(path);
-            userList = (file == "") ? new List<string>() : file.Split(",").ToList();
+            string envVar = Environment.GetEnvironmentVariable("userList");
+            userList = (envVar == null) ? new List<string>() : envVar.Split(",").ToList();
 
         }
 
@@ -28,7 +27,7 @@ namespace Blazor_Chat_App.Data
         {
             userList.Add(newUser);
             string temp = String.Join(",", userList.ToArray());
-            System.IO.File.WriteAllText(path, temp);
+            Environment.SetEnvironmentVariable("userList", temp);
 
             await Clients.All.SendAsync("ReceiveUserList", userList);
         }
@@ -39,7 +38,7 @@ namespace Blazor_Chat_App.Data
             {
                 userList.RemoveAt(userList.IndexOf(user));
                 string temp = String.Join(",", userList.ToArray());
-                System.IO.File.WriteAllText(path, temp);
+                Environment.SetEnvironmentVariable("userList", temp);
             }
 
             await Clients.All.SendAsync("ReceiveUserList", userList);

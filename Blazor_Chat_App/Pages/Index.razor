@@ -1,6 +1,4 @@
-﻿@using System
-@using System.IO
-@using Microsoft.AspNetCore.SignalR.Client
+﻿@using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @implements IDisposable
@@ -25,7 +23,6 @@
 </div>
 
 <div class="title"><h1>Blazor Chat App</h1></div>
-<div><h1>@path</h1></div>
 
 <hr />
 <h3>Your Username is: @_userName</h3>
@@ -83,7 +80,6 @@
 </div>
 
 @code{
-    string path = Directory.GetCurrentDirectory();
 
     private HubConnection _hubConnection;
 
@@ -118,8 +114,8 @@
     {
         if (firstRender)
         {
-            @*await GetUserList();
-                await JSRuntime.InvokeVoidAsync("popup");*@
+            await GetUserList();
+            await JSRuntime.InvokeVoidAsync("popup");
         }
     }
 
