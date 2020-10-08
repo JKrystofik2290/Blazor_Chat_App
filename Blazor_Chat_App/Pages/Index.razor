@@ -25,6 +25,8 @@
 <div class="title"><h1>Blazor Chat App</h1></div>
 
 <hr />
+<h3>Your Username is: @_userName</h3>
+<hr />
 
 <div class="userlist">
     <h3>Users In Chat:</h3>
@@ -40,16 +42,27 @@
 
 <div class="chatbox">
     <h3>Messages:</h3>
-    <ul id="messageList">
+    <ul class="messageList">
         @foreach (string[] chatMsg in _chatMessages)
         {
-            if (chatMsg[0] == _userName)
+            if (chatMsg[2] == "joined")
             {
-                <li class="sentMsg">@chatMsg[0] : @chatMsg[1]</li>
+                <li class="joinedMsg">@chatMsg[0] Has Joined The Chat!</li>
+            }
+            else if (chatMsg[2] == "left")
+            {
+                <li class="leftMsg">@chatMsg[0] Has Left The Chat!</li>
             }
             else
             {
-                <li class="recMsg">@chatMsg[0] : @chatMsg[1]</li>
+                if (chatMsg[0] == _userName)
+                {
+                    <li class="sentMsg">@chatMsg[0] : @chatMsg[1]</li>
+                }
+                else
+                {
+                    <li class="recMsg">@chatMsg[0] : @chatMsg[1]</li>
+                }
             }
         }
     </ul>
@@ -72,6 +85,7 @@
 
     private string _userName = "";
     private string _msg = "";
+    private string _msgFlag = "";
     private List<string[]> _chatMessages = new List<string[]>();
     private List<string> _usersInChat = new List<string>();
 
@@ -79,31 +93,17 @@
     protected override async Task OnInitializedAsync()
     {
         _hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chat")).Build();
-        _hubConnection.On<string, string>("ReceiveMessage", (user, msg) =>
+        _hubConnection.On<string, string, string>("ReceiveMessage", (user, msg, flag) =>
         {
-            string[] formatMsg = { user, msg };
+            string[] formatMsg = { user, msg, flag };
             _chatMessages.Add(formatMsg);
             StateHasChanged();
         });
 
         _hubConnection.On<List<string>>("ReceiveUserList", (userList) =>
         {
-            foreach (string user in userList)
-            {
-                if (!_usersInChat.Contains(user))
-                {
-                    _usersInChat.Add(user);
-                }
-            }
-            StateHasChanged();
-        });
+            _usersInChat = userList;
 
-        _hubConnection.On<string>("RemoveUserFromList", (user) =>
-        {
-            if (user != "")
-            {
-                _usersInChat.RemoveAt(_usersInChat.IndexOf(user));
-            }
             StateHasChanged();
         });
 
@@ -114,22 +114,26 @@
     {
         if (firstRender)
         {
+            await GetUserList();
             await JSRuntime.InvokeVoidAsync("popup");
         }
     }
+
 
     public bool IsConnected => _hubConnection.State == HubConnectionState.Connected;
 
 
     private void SendMsg()
     {
-        _hubConnection.SendAsync("SendMsg", _userName, _msg);
+        _hubConnection.SendAsync("SendMsg", _userName, _msg, _msgFlag);
         _msg = "";
     }
 
+    Task GetUserList() => _hubConnection.SendAsync("SendUserList");
+
     Task SendNewUser() => _hubConnection.SendAsync("SendNewUser", _userName);
 
-    Task RemoveUser() => _hubConnection.SendAsync("RemoveUserL", _userName);
+    Task RemoveUser() => _hubConnection.SendAsync("RemoveUser", _userName);
 
 
     private void KeyBoardEventHandler(KeyboardEventArgs args)
@@ -143,6 +147,7 @@
 
     private void NewUserJoined()
     {
+        GetUserList();
         bool sameName = _usersInChat.Contains(_userName);
 
         if (sameName)
@@ -157,15 +162,18 @@
         }
 
         SendNewUser();
-        _msg = "Has Joined The Chat!";
+        _msgFlag = "joined";
         SendMsg();
-        _msg = "";
+        _msgFlag = "";
     }
 
 
     public void Dispose()
     {
         RemoveUser();
+        _msgFlag = "left";
+        SendMsg();
+        _msgFlag = "";
     }
 
 }
