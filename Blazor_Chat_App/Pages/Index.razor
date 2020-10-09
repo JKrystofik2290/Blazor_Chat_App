@@ -5,92 +5,81 @@
 
 @page "/"
 
-<div class="modal fade" id="getUsername" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="getUsername" data-backdrop="static" data-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">Welcome To My Blazor Chat App!</h5>
             </div>
             <div class="modal-body">
-                <label>
-                    Choose A Username:
-                    <input type="text" class="form-control" maxlength="12"
-                           onkeyup="this.value = this.value.replace(/[,]/, '')" onkeydown="this.value = this.value.replace(/[,]/, '')"
-                           @bind-value="_userName" @bind-value:event="oninput" />
-                </label>
-                <ul>
-                    <li>No commas</li>
-                    <li>Max length of 12 characters</li>
-                </ul>
+                <label>Choose A Username:</label>
+                <input type="text" class="form-control w-100" maxlength="12"
+                       onkeyup="this.value = this.value.replace(/[,]/, '')" onkeydown="this.value = this.value.replace(/[,]/, '')" 
+                       @onkeypress="NewUserKeyboardHandler" @bind-value="_userName" @bind-value:event="oninput"
+                       data-toggle="tooltip" data-placement="top" title="Max length 12 & no commas" />
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" @onclick="NewUserJoined" data-dismiss="modal" disabled="@(!IsConnected)">Join Chat</button>
+                <button type="button" class="btn btn-primary" @onclick="NewUserJoined" @onkeydown="NewUserKeyboardHandler"
+                        disabled="@(!IsConnected)">Join Chat</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="title"><h1>Blazor Chat App</h1></div>
-
-<hr />
-<h3>Your Username is: @_userName</h3>
-<hr />
-
-<div class="userlist">
-    <h3>Users In Chat:</h3>
-    <ul>
-        @foreach (string user in _usersInChat)
-        {
-            <li>@user</li>
-        }
-    </ul>
+<div class="header">
+    <h1>Blazor Chat App</h1>
+    <h4>You are: @_userName</h4>
 </div>
 
-<hr />
-
-<div class="chatbox">
-    <h3>Messages:</h3>
-    <ul class="messageList">
-        @foreach (string[] chatMsg in _chatMessages)
-        {
-            if (chatMsg[2] == "joined")
+<div class="chat">
+    <div class="chatBox">
+        <ul class="chatList">
+            @foreach (string[] chatMsg in _chatMessages)
             {
-                <li class="joinedMsg">@chatMsg[0] Has Joined The Chat!</li>
-            }
-            else if (chatMsg[2] == "left")
-            {
-                <li class="leftMsg">@chatMsg[0] Has Left The Chat!</li>
-            }
-            else
-            {
-                if (chatMsg[0] == _userName)
+                if (chatMsg[2] == "joined")
                 {
-                    <li class="sentMsg">@chatMsg[0] : @chatMsg[1]</li>
+                    <li class="joinedMsg">@chatMsg[0] Has Joined The Chat!</li>
+                }
+                else if (chatMsg[2] == "left")
+                {
+                    <li class="leftMsg">@chatMsg[0] Has Left The Chat!</li>
                 }
                 else
                 {
-                    <li class="recMsg">@chatMsg[0] : @chatMsg[1]</li>
+                    if (chatMsg[0] == _userName)
+                    {
+                        <li class="sentMsg">@chatMsg[0] : @chatMsg[1]</li>
+                    }
+                    else
+                    {
+                        <li class="recMsg">@chatMsg[0] : @chatMsg[1]</li>
+                    }
                 }
             }
-        }
-    </ul>
-</div>
+        </ul>
+    </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="form-group">
-            <label>
-                Message: <input type="text" class="form-control" @onkeydown="KeyBoardEventHandler" @bind-value="_msg" @bind-value:event="oninput" />
-            </label>
-        </div>
-        <button @onclick="SendMsg" @onkeydown="KeyBoardEventHandler" disabled="@(!IsConnected)">Send</button>
+    <div class="userlist">
+        <h4>Users In Chat:</h4>
+        <ul>
+            @foreach (string user in _usersInChat)
+            {
+                <li>@user</li>
+            }
+        </ul>
+    </div>
+
+    <div class="msgbox">
+        <input type="text" class="form-control" @onkeydown="SendMsgKeyboardHandler" @bind-value="_msg" @bind-value:event="oninput" />
+        <button class="btn btn-primary" @onclick="SendMsg" @onkeydown="SendMsgKeyboardHandler" disabled="@(!IsConnected)">Send</button>
     </div>
 </div>
+
 
 @code{
 
     private HubConnection _hubConnection;
-
     private string _userName = "";
     private string _msg = "";
     private string _msgFlag = "";
@@ -101,6 +90,7 @@
     protected override async Task OnInitializedAsync()
     {
         _hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chat")).Build();
+
         _hubConnection.On<string, string, string>("ReceiveMessage", (user, msg, flag) =>
         {
             string[] formatMsg = { user, msg, flag };
@@ -118,12 +108,13 @@
         await _hubConnection.StartAsync();
     }
 
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await GetUserList();
-            await JSRuntime.InvokeVoidAsync("popup");
+            await JSRuntime.InvokeVoidAsync("ShowPopup");
         }
     }
 
@@ -137,25 +128,20 @@
         _msg = "";
     }
 
-    Task GetUserList() => _hubConnection.SendAsync("SendUserList");
 
-    Task SendNewUser() => _hubConnection.SendAsync("SendNewUser", _userName);
-
-    Task RemoveUser() => _hubConnection.SendAsync("RemoveUser", _userName);
+    private Task GetUserList() => _hubConnection.SendAsync("SendUserList");
 
 
-    private void KeyBoardEventHandler(KeyboardEventArgs args)
+    private Task SendNewUser() => _hubConnection.SendAsync("SendNewUser", _userName);
+
+
+    private Task RemoveUser() => _hubConnection.SendAsync("RemoveUser", _userName);
+
+
+    private async void NewUserJoined()
     {
-        if (args.Key == "Enter")
-        {
-            SendMsg();
-            _msg = "";
-        }
-    }
-
-    private void NewUserJoined()
-    {
-        GetUserList();
+        await JSRuntime.InvokeVoidAsync("HidePopup");
+        await GetUserList();
         bool sameName = _usersInChat.Contains(_userName);
 
         if (sameName)
@@ -169,7 +155,7 @@
             }
         }
 
-        SendNewUser();
+        await SendNewUser();
         _msgFlag = "joined";
         SendMsg();
         _msgFlag = "";
@@ -182,6 +168,25 @@
         _msgFlag = "left";
         SendMsg();
         _msgFlag = "";
+    }
+
+
+    private void SendMsgKeyboardHandler(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            SendMsg();
+            _msg = "";
+        }
+    }
+
+
+    private void NewUserKeyboardHandler(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            NewUserJoined();
+        }
     }
 
 }

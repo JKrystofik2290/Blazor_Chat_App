@@ -11,12 +11,11 @@ namespace Blazor_Chat_App.Data
     public class ChatHub : Hub
     {
         List<string> userList = new List<string>();
+        string envVar = Environment.GetEnvironmentVariable("userList");
 
         public ChatHub()
         {
-            string envVar = Environment.GetEnvironmentVariable("userList");
-            userList = (envVar == null) ? new List<string>() : envVar.Split(",").ToList();
-
+            List<string> userList = (envVar == null) ? new List<string>() : envVar.Split(",").ToList();
         }
 
         public async Task SendUserList(List<string> userList) => await Clients.All.SendAsync("ReceiveUserList", userList);
