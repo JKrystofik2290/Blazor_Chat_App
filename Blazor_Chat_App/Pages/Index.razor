@@ -60,8 +60,8 @@
         </ul>
     </div>
 
-    <div class="userlist">
-        <h4>Users In Chat:</h4>
+    <div class="userList">
+        <h4>In Chat:</h4>
         <ul>
             @foreach (string user in _usersInChat)
             {
@@ -69,11 +69,11 @@
             }
         </ul>
     </div>
+</div>
 
-    <div class="msgbox">
-        <input type="text" class="form-control" @onkeydown="SendMsgKeyboardHandler" @bind-value="_msg" @bind-value:event="oninput" />
-        <button class="btn btn-primary" @onclick="SendMsg" @onkeydown="SendMsgKeyboardHandler" disabled="@(!IsConnected)">Send</button>
-    </div>
+<div class="msgbox">
+    <input type="text" class="form-control" @onkeydown="SendMsgKeyboardHandler" @bind-value="_msg" @bind-value:event="oninput" />
+    <button class="btn btn-primary" @onclick="SendMsg" @onkeydown="SendMsgKeyboardHandler" disabled="@(!IsConnected)">Send</button>
 </div>
 
 
