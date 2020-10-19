@@ -100,7 +100,7 @@
 
         _hubConnection.On<List<string>>("ReceiveUserList", (userList) =>
         {
-            _usersInChat = userList;
+            _usersInChat = new List<string>(userList);
 
             StateHasChanged();
         });
@@ -113,7 +113,6 @@
     {
         if (firstRender)
         {
-            await GetUserList();
             await JSRuntime.InvokeVoidAsync("ShowPopup");
         }
     }
@@ -138,23 +137,10 @@
     private Task RemoveUser() => _hubConnection.SendAsync("RemoveUser", _userName);
 
 
-    private async void NewUserJoined()
+    private async Task NewUserJoined()
     {
         await JSRuntime.InvokeVoidAsync("HidePopup");
         await GetUserList();
-        bool sameName = _usersInChat.Contains(_userName);
-
-        if (sameName)
-        {
-            int count = 1;
-            while (sameName)
-            {
-                _userName = $"{_userName}({count})";
-                sameName = _usersInChat.Contains(_userName);
-                count++;
-            }
-        }
-
         await SendNewUser();
         _msgFlag = "joined";
         SendMsg();
@@ -181,11 +167,11 @@
     }
 
 
-    private void NewUserKeyboardHandler(KeyboardEventArgs args)
+    private async void NewUserKeyboardHandler(KeyboardEventArgs args)
     {
         if (args.Key == "Enter")
         {
-            NewUserJoined();
+            await NewUserJoined();
         }
     }
 
