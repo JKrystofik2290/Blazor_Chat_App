@@ -24,6 +24,7 @@ namespace Blazor_Chat_App.Data
 
         public async Task SendNewUser(string newUser)
         {
+            List<string> userList = (envVar == null) ? new List<string>() : envVar.Split(",").ToList();
             userList.Add(newUser);
             string temp = String.Join(",", userList.ToArray());
             Environment.SetEnvironmentVariable("userList", temp);
@@ -33,6 +34,8 @@ namespace Blazor_Chat_App.Data
 
         public async Task RemoveUser(string user)
         {
+            List<string> userList = (envVar == null) ? new List<string>() : envVar.Split(",").ToList();
+
             if (userList.Contains(user))
             {
                 userList.RemoveAt(userList.IndexOf(user));
