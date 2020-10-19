@@ -80,12 +80,35 @@ ul {
 .chatBox {
     width: 75vw;
     overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
     background-color: rgb(5, 39, 103);
     color: white;
 }
 
-.chatList{
+.chatList {
+    padding: 0px;
+}
 
+.joinedMsg {
+    text-align: center;
+    background: forestgreen;
+}
+
+.leftMsg {
+    text-align: center;
+    background: indianred;
+}
+
+.sentMsg {
+    text-align: right;
+    padding-right: 20px;
+    overflow-wrap: break-word;
+}
+
+.recMsg {
+    padding-left: 20px;
+    overflow-wrap: break-word;
 }
 
 .userList {
